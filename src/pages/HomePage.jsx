@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Cookies from "js-cookie";
 import { controller } from "../assets";
 
 import GameCarousel from '../components/GameCarousel';
@@ -6,30 +7,79 @@ import BottomNavigation from '../components/BottomNavigation';
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState('home');
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const logout = () => {
+    Cookies.remove("authToken");
+    Cookies.remove("loginTime");
+
+    // 🔹 If using Redux / Context → Clear authentication state
+    // dispatch(logoutUser())
+
+    window.location.href = "/login"; // redirect to login page
+  };
+
+  // ✅ Auto Logout if loginTime expired
+  useEffect(() => {
+    const loginTime = Cookies.get("loginTime");
+    const expirationTime = 24 * 60 * 60 * 1000; // 1 day expiration
+    if (loginTime) {
+      const diff = Date.now() - Number(loginTime);
+      if (diff > expirationTime) {
+        logout();
+      }
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 relative overflow-hidden pb-24">
 
+      {/* ✅ Header */}
+      <div className="relative z-50 flex justify-between items-center px-6 pt-6">
 
-      {/* Header with Menu Button */}
-      <div className="relative z-10 flex justify-between items-center px-6 pt-6">
+        {/* Logo */}
         <div className="flex items-center gap-3">
-                      <img src={controller} alt="" className='w-[35px] h-[25px]'/>     
+          <img src={controller} alt="" className='w-[35px] h-[25px]' />
           <span className="text-white text-2xl font-bold tracking-wider">GAMEZONE</span>
         </div>
-        <button className="bg-blue-600 hover:bg-blue-700 p-2 rounded-lg transition-all">
-          <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
+
+        {/* ✅ Desktop — Profile + Logout */}
+        <div className="hidden md:flex items-center gap-4 text-white">
+          <button className="bg-gray-700 px-3 py-1 rounded-lg">Profile</button>
+          <button
+            onClick={logout}
+            className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg cursor-pointer">
+            Logout
+          </button>
+        </div>
+
+        {/* ✅ Mobile — Menu Button */}
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="md:hidden bg-blue-600 hover:bg-blue-700 p-2 rounded-lg transition-all"
+        >
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
         </button>
+
+        {menuOpen && (
+          <div className="absolute z-50 top-18 right-6 text-lg bg-slate-800 text-white px-6 py-3 rounded-lg shadow-xl md:hidden border border-gray-700">
+            <button className="block w-full text-left py-2 cursor-pointer hover:text-blue-400">Profile</button>
+            <button
+              onClick={logout}
+              className="block w-full text-left py-2 cursor-pointer hover:text-blue-400">
+              Logout
+            </button>
+          </div>
+        )}
+
+
       </div>
 
-      {/* Main Content - Game Carousel */}
       <GameCarousel />
-
-      {/* Bottom Navigation */}
       <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
