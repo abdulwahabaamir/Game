@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import Cookies from "js-cookie";
-import { hero, controller, yellowStar, backIcon } from "../assets";
+import { hero, controller, YellowStar, backIcon,Loading } from "../assets";
 
 const STATIC_OTP = "4353";
 const ENCRYPTION_KEY = "gamezone-secret-key-2025";
@@ -15,7 +15,7 @@ export default function Login() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
+
   const otpRefs = useRef([]);
   const navigate = useNavigate();
 
@@ -82,20 +82,20 @@ export default function Login() {
   };
 
   // Store token in cookie with proper security options
-const storeAuthToken = (token) => {
-  const cookieOptions = {
-    secure: true,                              // ✅ HTTPS only
-    sameSite: "strict",                        // ✅ CSRF protection
-    expires: new Date(Date.now() + 10 * 60 * 1000), // ✅ 10 minutes from now
-    path: "/",
+  const storeAuthToken = (token) => {
+    const cookieOptions = {
+      secure: true, // ✅ HTTPS only
+      sameSite: "strict", // ✅ CSRF protection
+      expires: new Date(Date.now() + 10 * 60 * 1000), // ✅ 10 minutes from now
+      path: "/",
+    };
+
+    // Store encrypted token
+    Cookies.set("authToken", token, cookieOptions);
+
+    // Store login timestamp for auto-logout check
+    Cookies.set("loginTime", Date.now().toString(), cookieOptions);
   };
-
-  // Store encrypted token
-  Cookies.set("authToken", token, cookieOptions);
-
-  // Store login timestamp for auto-logout check
-  Cookies.set("loginTime", Date.now().toString(), cookieOptions);
-};
 
   const handleSendOtp = () => {
     if (!validateMobileFormat(mobile)) {
@@ -116,7 +116,7 @@ const storeAuthToken = (token) => {
       console.log("Static OTP:", STATIC_OTP);
       setOtpScreen(true);
       setLoading(false);
-      
+
       setOtp(["", "", "", ""]);
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
     }, 1000);
@@ -124,7 +124,7 @@ const storeAuthToken = (token) => {
 
   const handleVerifyOtp = () => {
     const otpValue = otp.join("");
-    
+
     if (otpValue.length !== 4) {
       setError("Please enter complete OTP");
       return;
@@ -141,8 +141,13 @@ const storeAuthToken = (token) => {
         console.log("===== SECURITY VERIFICATION =====");
         console.log("✅ Token encrypted with CryptoJS AES");
         console.log("✅ No plain-text data stored");
-        console.log("✅ Cookie options: secure=true, sameSite=strict, maxAge=600000ms");
-        console.log("Encrypted Token Sample:", encryptedToken.substring(0, 50) + "...");
+        console.log(
+          "✅ Cookie options: secure=true, sameSite=strict, maxAge=600000ms"
+        );
+        console.log(
+          "Encrypted Token Sample:",
+          encryptedToken.substring(0, 50) + "..."
+        );
         console.log("================================");
 
         // Store in cookie with proper security options
@@ -153,7 +158,7 @@ const storeAuthToken = (token) => {
 
         navigate("/home");
       } else {
-        setError(`Invalid OTP. Please try again. (Hint: ${STATIC_OTP})`);
+        setError("Invalid OTP. Please try again.");
         setOtp(["", "", "", ""]);
         otpRefs.current[0]?.focus();
         setLoading(false);
@@ -167,6 +172,7 @@ const storeAuthToken = (token) => {
       setOtp(["", "", "", ""]);
       setError("");
     }
+    navigate('/');
   };
 
   const isValidMobile = validateMobileFormat(mobile);
@@ -176,35 +182,35 @@ const storeAuthToken = (token) => {
     <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-b from-black to-gray-900 text-white">
       {/* Header Section with curved bottom */}
       <div
-        className="bg-gradient-to-r from-[#0078C2] to-[#0039C5] w-full p-4 sm:p-6 mb-8 relative"
+        className="bg-gradient-to-r from-[#00395C] to-[#0078C2] w-full px-4  mb-8 relative"
         style={{ clipPath: "polygon(0 0, 100% 0, 100% 90%, 50% 100%, 0 90%)" }}
       >
         {/* Back Button */}
         <div className="mt-4 sm:mt-6 w-full flex justify-start px-2">
           <button
             onClick={handleBack}
-            className="bg-[#2EB1FA] w-7 h-7 sm:w-8 sm:h-8 rounded-full flex justify-center items-center cursor-pointer hover:bg-[#1a9ee0] transition-colors"
+            className="bg-[#2EB1FA] w-7 h-7 sm:w-8 sm:h-8 rounded-full flex justify-center items-center cursor-pointer hover:bg-[#1a9ee0] border-2 border-white"
           >
             <img src={backIcon} alt="back" className="w-2 h-4" />
           </button>
         </div>
 
         {/* Character and Stars */}
-        <div className="mt-4 sm:mt-6 flex items-center justify-around px-2 pb-8 sm:pb-12">
-          <div className="flex flex-col items-center mt-3">
+        <div className="mt-4 sm:mt-0 flex items-center justify-around px-2 pb-8 sm:pb-0">
+          <div className="flex flex-col items-center ">
             <div className="flex justify-center items-start gap-1 sm:gap-2">
-              <img src={yellowStar} alt="star" className="w-6 h-6 sm:w-8 sm:h-8" />
-              <img src={yellowStar} alt="star" className="w-6 h-6 sm:w-8 sm:h-8 -mt-4 sm:-mt-6" />
-              <img src={yellowStar} alt="star" className="w-6 h-6 sm:w-8 sm:h-8" />
+              <img src={YellowStar} alt="star" className="w-8 h-8 sm:w-14 sm:h-14" />
+              <img src={YellowStar} alt="star" className="-mt-6 w-8 h-8 sm:w-14 sm:h-14" />
+              <img src={YellowStar} alt="star" className="w-8 h-8 sm:w-14 sm:h-14" />
             </div>
-            <p className="text-xs sm:text-sm font-bold mt-1">TOP RATED</p>
+            <p className="text-xs sm:text-lg font-bold">TOP RATED</p>
           </div>
 
           <div>
             <img
               src={hero}
               alt="hero character"
-              className="w-24 h-44 sm:w-32 sm:h-56 md:w-36 md:h-64 object-contain"
+              className="w-24 h-44 sm:w-32 sm:h-56 md:w-36 md:h-70 object-contain"
             />
           </div>
         </div>
@@ -212,7 +218,11 @@ const storeAuthToken = (token) => {
 
       {/* Game Controller Icon */}
       <div className="mb-2">
-        <img src={controller} alt="controller" className="w-10 h-7 sm:w-12 sm:h-9" />
+        <img
+          src={controller}
+          alt="controller"
+          className="w-10 h-7 sm:w-12 sm:h-9"
+        />
       </div>
 
       <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wide">
@@ -231,10 +241,9 @@ const storeAuthToken = (token) => {
               type="tel"
               value={mobile}
               onChange={handleMobileChange}
-              className={`mt-2 w-full max-w-xs bg-white text-black rounded-lg p-2 sm:p-3 outline-none text-center text-base sm:text-lg font-medium ${
-                mobile && !isValidMobile ? "ring-2 ring-red-500" : ""
-              }`}
-              placeholder="03XXXXXXXXX"
+              className={`mt-2 w-full max-w-xs bg-white text-black rounded-lg p-2 sm:p-3 outline-none text-center text-base sm:text-lg font-medium ${mobile && !isValidMobile ? "ring-2 ring-red-500" : ""
+                }`}
+              placeholder="Enter Your Mobile Number"
             />
 
             {error && (
@@ -245,24 +254,38 @@ const storeAuthToken = (token) => {
 
             {mobile && !isValidMobile && (
               <p className="text-yellow-400 text-xs mt-1">
-                Format: 03XXXXXXXXX (11 digits)
+                Please enter a valid mobile number (03XXXXXXXXX)
               </p>
             )}
 
             <button
               onClick={handleSendOtp}
               disabled={!isValidMobile || !agreedToTerms || loading}
-              className={`mt-6 w-full max-w-xs py-2 sm:py-3 rounded-lg font-bold border-2 border-white text-sm sm:text-base transition-all ${
-                isValidMobile && agreedToTerms && !loading
+              className={`mt-6 w-full max-w-xs py-2 sm:py-3 rounded-lg font-bold border-2 border-white text-sm sm:text-base transition-all ${isValidMobile && agreedToTerms && !loading
                   ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
                   : "bg-gray-600 cursor-not-allowed opacity-50"
-              }`}
+                }`}
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <svg className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  <svg
+                    className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                   SENDING...
                 </span>
@@ -306,17 +329,31 @@ const storeAuthToken = (token) => {
             <button
               onClick={handleVerifyOtp}
               disabled={!isOtpComplete || loading}
-              className={`mt-6 w-full max-w-xs py-2 sm:py-3 rounded-lg font-bold border-2 border-white text-sm sm:text-base transition-all ${
-                isOtpComplete && !loading
+              className={`mt-6 w-full max-w-xs py-2 sm:py-3 rounded-lg font-bold border-2 border-white text-sm sm:text-base transition-all ${isOtpComplete && !loading
                   ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
                   : "bg-gray-600 cursor-not-allowed opacity-50"
-              }`}
+                }`}
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <svg className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  <svg
+                    className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                   VERIFYING...
                 </span>
@@ -328,9 +365,8 @@ const storeAuthToken = (token) => {
         )}
 
         {/* Terms & Privacy */}
-        <p className="mt-6 sm:mt-8 text-[9px] sm:text-[10px] text-center max-w-xs opacity-80 leading-relaxed">
-          YOUR CONTACT DETAILS ARE USED FOR VERIFICATION AND UPDATES AS PER OUR
-          <span className="font-bold"> PRIVACY POLICY</span>.
+        <p className="mt-6 sm:mt-8 text-sm sm:text-lg text-center font-semibold ">
+          YOUR CONTACT DETAILS ARE USED FOR VERIFICATION AND UPDATES AS PER OUR [PRIVACY POLICY].
         </p>
 
         <div className="mt-4 flex items-center gap-2 text-[10px] sm:text-[11px]">
@@ -341,7 +377,7 @@ const storeAuthToken = (token) => {
             className="accent-blue-500 w-4 h-4 cursor-pointer"
           />
           <label
-            className="cursor-pointer"
+            className="cursor-pointer text-sm sm:text-lg"
             onClick={() => setAgreedToTerms(!agreedToTerms)}
           >
             I AGREE TO THE TERMS AND CONDITIONS
@@ -350,7 +386,7 @@ const storeAuthToken = (token) => {
 
         <a
           href="#"
-          className="mt-2 mb-8 text-blue-400 text-[10px] sm:text-xs underline hover:text-blue-300"
+          className="mt-4 mb-8 text-blue-400 text-sm sm:text-lg font-bold hover:text-blue-300"
         >
           PRIVACY POLICY
         </a>

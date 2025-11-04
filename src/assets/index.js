@@ -1,6 +1,6 @@
 import hero from "./hero.png";
 import controller from "./controllerIcon.png";
-import yellowStar from "./yellowStar.png";
+import YellowStar from "./YellowStar.svg";
 import backIcon from "./backIcon.png";
 import crousel1 from "./c1.svg";
 import crousel2 from "./c2.svg";
@@ -18,9 +18,10 @@ import HomeIcon from "./HomeIcon.png";
 import DownloadIcon from "./DownloadIcon.png";
 import FavoriteIcon from "./FavoriteIcon.png";
 import GameIcon from "./GameIcon.png";
+import Loading from "./loading.svg";
 
 
 
 // import starIcon from "./star.svg";
 
-export { hero, controller, yellowStar, backIcon, crousel1, crousel2, crousel3, tictac, Play, AI, Stars, pumpkin,game1,game2,game3,game4, HomeIcon, GameIcon, DownloadIcon, FavoriteIcon };
+export { hero, controller, YellowStar, backIcon, crousel1, crousel2, crousel3, tictac, Play, AI, Stars, pumpkin,game1,game2,game3,game4, HomeIcon, GameIcon, DownloadIcon, FavoriteIcon, Loading };

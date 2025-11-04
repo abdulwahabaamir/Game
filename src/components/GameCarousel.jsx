@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Heart, Star } from 'lucide-react';
-import { crousel1, crousel2, crousel3, tictac, Play, AI, Stars, pumpkin, yellowStar, game1, game2, game3, game4 } from "../assets";
+import { crousel1, crousel2, crousel3, tictac, Play, AI, Stars, pumpkin, YellowStar, game1, game2, game3, game4 } from "../assets";
 
 const GameCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -276,7 +276,7 @@ const GameCarousel = () => {
                 {/* Star Rating */}
                 <div className="flex gap-1">
                   {[...Array(5)].map((_, index) => (
-                    <img src={yellowStar} alt="Star" className="w-5 h-5 sm:w-6 sm:h-6" key={index} />
+                    <img src={YellowStar} alt="Star" className="w-5 h-5 sm:w-6 sm:h-6" key={index} />
                   ))}
                 </div>
               </div>
@@ -321,7 +321,7 @@ const GameCarousel = () => {
                   {[...Array(game.rating)].map((_, index) => (
                     <img
                       key={index}
-                      src={yellowStar}
+                      src={YellowStar}
                       alt="star"
                       className="w-4 h-4 sm:w-5 sm:h-5"
                     />
