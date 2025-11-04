@@ -12,7 +12,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-[#1E1E1E] relative overflow-hidden">
 
 
       {/* Header with Join Button */}
