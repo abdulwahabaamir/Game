@@ -18,10 +18,10 @@ import HomeIcon from "./HomeIcon.png";
 import DownloadIcon from "./DownloadIcon.png";
 import FavoriteIcon from "./FavoriteIcon.png";
 import GameIcon from "./GameIcon.png";
-import Loading from "./loading.svg";
+
 
 
 
 // import starIcon from "./star.svg";
 
-export { hero, controller, YellowStar, backIcon, crousel1, crousel2, crousel3, tictac, Play, AI, Stars, pumpkin,game1,game2,game3,game4, HomeIcon, GameIcon, DownloadIcon, FavoriteIcon, Loading };
+export { hero, controller, YellowStar, backIcon, crousel1, crousel2, crousel3, tictac, Play, AI, Stars, pumpkin,game1,game2,game3,game4, HomeIcon, GameIcon, DownloadIcon, FavoriteIcon };

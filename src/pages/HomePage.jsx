@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Cookies from "js-cookie";
 import { controller } from "../assets";
+import { Equal } from 'lucide-react';
 
-import GameCarousel from '../components/GameCarousel';
+
+import GameContent from '../components/GameContent';
 import BottomNavigation from '../components/BottomNavigation';
 
 const HomePage = () => {
@@ -56,13 +58,9 @@ const HomePage = () => {
         {/* ✅ Mobile — Menu Button */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden bg-blue-600 hover:bg-blue-700 p-2 rounded-lg transition-all"
+          className="md:hidden bg-blue-600 hover:bg-blue-700 p-2 rounded-lg transition-all border-2 border-white"
         >
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
+          <Equal className="text-white" />
         </button>
 
         {menuOpen && (
@@ -79,7 +77,7 @@ const HomePage = () => {
 
       </div>
 
-      <GameCarousel />
+      <GameContent />
       <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );

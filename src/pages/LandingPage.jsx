@@ -1,7 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import GameCarousel from '../components/GameCarousel';
+import GameContent from '../components/GameContent';
 import { controller } from "../assets";
+import { useEffect } from 'react';
+import Cookies from "js-cookie";
 
 
 const LandingPage = () => {
@@ -10,6 +12,12 @@ const LandingPage = () => {
   const handleJoinClick = () => {
     navigate('/login');
   };
+  useEffect(() => {
+      const token = Cookies.get("authToken");
+      if (token) {
+        navigate("/home");
+      }
+    }, [navigate]);
 
   return (
     <div className="min-h-screen bg-[#1E1E1E] relative overflow-hidden">
@@ -23,14 +31,14 @@ const LandingPage = () => {
         </div>
         <button
           onClick={handleJoinClick}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 cursor-pointer"
+          className="border-2 border-white bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 cursor-pointer"
         >
           JOIN NOW
         </button>
       </div>
 
-      {/* Main Content - Game Carousel */}
-      <GameCarousel />
+      {/* Main Content */}
+      <GameContent />
     </div>
   );
 };

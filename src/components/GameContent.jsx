@@ -1,64 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Heart, Star } from 'lucide-react';
-import { crousel1, crousel2, crousel3, tictac, Play, AI, Stars, pumpkin, YellowStar, game1, game2, game3, game4 } from "../assets";
-
+import { tictac, Play, AI, Stars, pumpkin, YellowStar } from "../assets";
+import { games } from "../data/gamesData";
+import { slides } from "../data/slidesData";
 const GameCarousel = () => {
+  const AUTO_SLIDE_INTERVAL = 3000;
+
+  // State and handlers
   const [currentSlide, setCurrentSlide] = useState(0);
-  const games = [
-    {
-      id: 1,
-      title: "HELLOWEEN MEMORY",
-      image: game1,
-      rating: 4
-    },
-    {
-      id: 2,
-      title: "STICK SOLDIER",
-      image: game2,
-      rating: 5
-    },
-    {
-      id: 3,
-      title: "MEMORY GAME",
-      image: game3,
-      rating: 1
-    },
-    {
-      id: 4,
-      title: "TRACK RACER",
-      image: game4,
-      rating: 3
-    }
-  ];
-  const slides = [
-    {
-      image: crousel1,
-      title: "REVIVE & CONQUER"
-    },
-    {
-      image: crousel2,
-      title: "BATTLE ROYALE"
-    },
-    {
-      image: crousel3,
-      title: "CYBER WARS"
-    }
-  ];
+
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 3000);
+    const timer = setInterval(nextSlide, AUTO_SLIDE_INTERVAL);
     return () => clearInterval(timer);
-  }, []);
-
-  const goToPrevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  };
-
-  const goToNextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
+  }, [slides.length]);
 
   return (
     <div className="relative z-10 mt-8">
@@ -77,10 +34,6 @@ const GameCarousel = () => {
                     alt={slide.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                  <h2 className="absolute bottom-4 md:bottom-6 left-4 md:left-6 text-2xl md:text-4xl lg:text-5xl font-black text-red-500 tracking-wider drop-shadow-lg">
-                    {slide.title}
-                  </h2>
                 </div>
               </div>
             ))}
@@ -88,17 +41,15 @@ const GameCarousel = () => {
         </div>
 
         <button
-          onClick={goToPrevSlide}
-          className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 md:p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
-          aria-label="Previous slide"
+          onClick={prevSlide}
+          className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 md:p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 "
         >
           <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
         </button>
 
         <button
-          onClick={goToNextSlide}
-          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 md:p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
-          aria-label="Next slide"
+          onClick={nextSlide}
+          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 md:p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 "
         >
           <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
         </button>
@@ -116,16 +67,18 @@ const GameCarousel = () => {
         </div>
       </div>
 
-      {/* Text Content */}
+
+
+      {/* Tic Tac Toe Text Content */}
       <div className="text-center text-white space-y-2 px-6">
-        <p className="text-base md:text-lg font-medium">THE GAMES YOU LOVE</p>
+        <p className="text-base md:text-2xl font-normal">THE GAMES YOU LOVE</p>
         <p className="text-2xl md:text-3xl lg:text-4xl font-bold">PLAY AND WIN</p>
-        <p className='text-xl'>JOIN MILLIONS OF PLAYERS IN PAKISTAN</p>
+        <p className='text-lg sm:text-2xl'>JOIN MILLIONS OF PLAYERS IN PAKISTAN.</p>
       </div>
 
+      {/* Tic Tac Toe section */}
       <div className="w-full max-w-lg mx-auto my-6 px-4 sm:px-6">
         <div className="rounded-3xl shadow-2xl bg-black overflow-hidden border-white border-2">
-          {/* Tic Tac Toe Image */}
           <div className="relative">
             <img
               src={tictac}
@@ -140,24 +93,27 @@ const GameCarousel = () => {
               Challenge a friend in Tic-Tac-Toe!
             </p>
 
-            <h2 className="text-base sm:text-xl md:text-2xl font-bold text-white leading-tight mt-2">
+            <h2 className="text-base sm:text-xl font-bold text-white leading-tight mt-2">
               ULTIMATE BATTLE OF WITS,<br />
               CAN YOU OUTSMART YOUR OPPONENT?
             </h2>
 
             {/* Play Button */}
-            <button className="flex items-center justify-center gap-2 bg-[#0c6899] hover:bg-[#07496d] cursor-pointer  mt-4 sm:mt-6 py-2.5 sm:py-3 px-2 sm:px-8 rounded-lg transition-all transform hover:scale-105 text-white font-semibold text-xs sm:text-sm md:text-base shadow-lg w-auto">
+            <button className="mx-auto flex items-center justify-center gap-2 bg-[#0c6899] hover:bg-[#07496d] cursor-pointer  mt-4 sm:mt-6 py-2.5 sm:py-3 px-2 sm:px-8 rounded-lg transition-all transform hover:scale-105 text-white font-semibold text-xs sm:text-sm md:text-base">
               START PLAYING NOW
               <img src={Play} alt="Play Icon" className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
       </div>
-      <div className="text-center text-white space-y-2 px-6 mb-8">
-        <p className="text-2xl md:text-3xl lg:text-4xl font-bold">NOW WITH AI AT YOUR SIDE</p>
+
+      {/* AI Chat Bot Text */}
+      <div className="text-center text-white space-y-2 px-6 mb-8 mt-20">
+        <p className="text-xl md:text-2xl lg:text-3xl font-bold">NOW WITH AI AT YOUR SIDE</p>
         <p className='text-xl'>GET INSTANT GAME TIPS, RULES, AND <br /> CATEGORIES FROM OUR AI GAME CHAT BOTS</p>
       </div>
 
+      {/* AI Chat Bot Section */}
       <div className="w-full max-w-lg mx-auto my-6 px-4 sm:px-6">
         <div className="rounded-3xl shadow-2xl bg-gradient-to-b from-[#101B2F] to-[#050914] overflow-hidden relative border-white border-2">
           <img src={Stars} alt="" className="absolute top-5 right-5" />
@@ -175,16 +131,16 @@ const GameCarousel = () => {
               Your gaming guide and strategist!
             </p>
 
-            <h2 className="text-base sm:text-xl md:text-2xl font-bold text-white leading-tight mt-2">
+            <h2 className="text-base sm:text-xl md:text-2xl font-bold text-white leading-tight my-2 uppercase">
               Ask about rules, tips, and<br />winning moves
             </h2>
-            <p className="text-xs sm:text-sm md:text-base tracking-widest uppercase text-white">
+            <p className="text-xs sm:text-sm md:text-base font-normal tracking-widest uppercase text-white">
               And get instant answers.<br />
               Start chatting now and level up your game!
             </p>
 
             {/* Play Button */}
-            <button className="flex items-center justify-center gap-2 bg-[#0c6899] hover:bg-[#07496d] cursor-pointer  mt-4 sm:mt-6 py-2.5 sm:py-3 px-2 sm:px-8 rounded-lg transition-all transform hover:scale-105 text-white font-semibold text-xs sm:text-sm md:text-base shadow-lg w-auto">
+            <button className="flex items-center justify-center gap-2 bg-[#0c6899] hover:bg-[#07496d] cursor-pointer  mt-4 sm:mt-6 py-2.5 sm:py-3 px-2 sm:px-8 rounded-lg transition-all transform hover:scale-105 text-white font-semibold text-xs sm:text-sm md:text-base mx-auto">
               CHAT NOW
               <img src={Play} alt="Play Icon" className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
@@ -203,10 +159,10 @@ const GameCarousel = () => {
 
             {/* Navigation Arrows */}
             <div className="flex gap-2">
-              <button className="bg-white hover:bg-gray-200 p-2 sm:p-3 rounded-full cursor-pointer transition-all shadow-lg">
+              <button className="bg-white hover:bg-gray-200 p-2 sm:p-3 rounded-full cursor-pointer transition-all ">
                 <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800" />
               </button>
-              <button className="bg-blue-500 hover:bg-blue-600 p-2 sm:p-3 rounded-full cursor-pointer transition-all shadow-lg">
+              <button className="bg-blue-500 hover:bg-blue-600 p-2 sm:p-3 rounded-full cursor-pointer transition-all ">
                 <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </button>
             </div>
@@ -214,16 +170,16 @@ const GameCarousel = () => {
 
           {/* Category Pills */}
           <div className="flex gap-3 overflow-x-auto pb-2">
-            <button className="px-6 py-2.5 rounded-md font-semibold whitespace-nowrap bg-blue-500 text-white border border-white transition-all hover:bg-blue-600 flex-shrink-0">
+            <button className="px-4 sm:px-6 py-1.5 sm:py-2.5 rounded-md font-semibold  bg-blue-500 text-white border border-white transition-all hover:bg-blue-600 cursor-pointer">
               Action
             </button>
-            <button className="px-6 py-2.5 rounded-md font-semibold whitespace-nowrap bg-blue-500 text-white border border-white transition-all hover:bg-blue-600 flex-shrink-0">
+            <button className="px-4 sm:px-6 py-1.5 sm:py-2.5 rounded-md font-semibold  bg-blue-500 text-white border border-white transition-all hover:bg-blue-600 cursor-pointer">
               Sports
             </button>
-            <button className="px-6 py-2.5 rounded-md font-semibold whitespace-nowrap bg-blue-500 text-white border border-white transition-all hover:bg-blue-600 flex-shrink-0">
+            <button className="px-4 sm:px-6 py-1.5 sm:py-2.5 rounded-md font-semibold  bg-blue-500 text-white border border-white transition-all hover:bg-blue-600 cursor-pointer">
               Racing
             </button>
-            <button className="px-6 py-2.5 rounded-md font-semibold whitespace-nowrap bg-blue-500 text-white border border-white transition-all hover:bg-blue-600 flex-shrink-0">
+            <button className="px-4 sm:px-6 py-1.5 sm:py-2.5 rounded-md font-semibold  bg-blue-500 text-white border border-white transition-all hover:bg-blue-600 cursor-pointer">
               Puzzle
             </button>
           </div>
@@ -237,7 +193,7 @@ const GameCarousel = () => {
             </h2>
 
             {/* Arrow Button */}
-            <button className="bg-blue-500 hover:bg-blue-600 p-2 sm:p-3 rounded-full cursor-pointer transition-all shadow-lg">
+            <button className="bg-blue-500 hover:bg-blue-600 p-2 sm:p-3 rounded-full cursor-pointer transition-all ">
               <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </button>
           </div>
@@ -284,11 +240,7 @@ const GameCarousel = () => {
           </div>
         </div>
       </div>
-
-
-
-
-      <div className="w-full px-4 sm:px-6 py-8">
+      <div className="w-full px-4 sm:px-6 py-10">
         {/* Section Header */}
         <h2 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold tracking-wide mb-6">
           SELECTED FOR YOU
@@ -330,15 +282,15 @@ const GameCarousel = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-3">
+              <div className="flex flex-col items-end sm:items-center gap-2 sm:gap-4">
                 {/* Play Button */}
-                <button className="bg-[#0c6899] hover:bg-[#07496d] transition-all transform hover:scale-105 cursor-pointer text-white font-semibold px-4 sm:px-10 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm whitespace-nowrap">
+                <button className="bg-[#0c6899] hover:bg-[#07496d] transition-all transform hover:scale-105 cursor-pointer text-white font-semibold px-4 sm:px-10 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm ">
                   PLAY
                 </button>
 
                 {/* Add to Favourite */}
-                <button className="flex items-center gap-1.5 text-white/80 hover:text-red-500 transition-all group cursor-pointer">
-                  <Heart className="w-4 h-4 sm:w-5 sm:h-5 group-hover:fill-red-500 transition-all" />
+                <button className="flex items-center gap-1.5 text-white/80 transition-all">
+                  <Heart className="w-4 h-4 sm:w-5 sm:h-5 hover:fill-red-500 cursor-pointer transition-all" />
                   <span className="text-xs sm:text-sm font-medium whitespace-nowrap">
                     ADD TO FAVOURITE
                   </span>
@@ -348,8 +300,6 @@ const GameCarousel = () => {
           ))}
         </div>
       </div>
-
-
 
     </div>
   );

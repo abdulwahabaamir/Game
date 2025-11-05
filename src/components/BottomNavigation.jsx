@@ -1,20 +1,14 @@
 import React, { useState } from 'react';
-import { HomeIcon, FavoriteIcon, DownloadIcon, GameIcon } from "../assets";
+import { navItems } from "../data/navData";
 
 const BottomNavigation = () => {
   const [activeTab, setActiveTab] = useState('home');
 
-  const navItems = [
-    { id: 'home', icon: HomeIcon, label: 'HOME' },
-    { id: 'games', icon: GameIcon, label: 'ALL GAMES' },
-    { id: 'spacer', icon: null, label: null },
-    { id: 'download', icon: DownloadIcon, label: 'DOWNLOAD' },
-    { id: 'favorite', icon: FavoriteIcon, label: 'FAVORITE' }
-  ];
+  
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50">
-      <div className="w-full relative pb-4 px-2">
+    <div className="fixed bottom-0 left-0 right-0 z-50 backdrop-blur">
+      <div className="w-full relative">
         {/* AI Button */}
         <div className="absolute left-1/2 -translate-x-1/2 -top-8 z-10">
           <button className="w-16 h-16 border border-white bg-gradient-to-br from-cyan-400 via-blue-500 to-blue-600 rounded-2xl shadow-2xl flex items-center justify-center transform rotate-45 hover:scale-110 transition-transform border-2 border-blue-300/30">
@@ -23,7 +17,7 @@ const BottomNavigation = () => {
         </div>
 
         {/* Nav Bar */}
-        <div className="bg-slate-800/95 backdrop-blur-xl rounded-3xl px-2 sm:px-6 py-5 shadow-2xl">
+        <div className="bg-[#2EB1FA]/30 rounded-t-4xl px-2 sm:px-6 py-5">
           {/* Nav Items */}
           <div className="flex justify-around items-center">
             {navItems.map((item) => {
@@ -38,8 +32,8 @@ const BottomNavigation = () => {
                     isActive ? 'text-cyan-400 scale-110' : 'text-slate-400 hover:text-slate-300'
                   }`}
                 >
-                  <img src={item.icon} alt="" className="w-7 h-7" />
-                  <span className="text-[10px] font-bold tracking-wider whitespace-nowrap">
+                  <img src={item.icon} alt="" className="size-5 sm:size-7" />
+                  <span className="text-xs sm:text-md font-normal tracking-wider whitespace-nowrap">
                     {item.label}
                   </span>
                 </button>

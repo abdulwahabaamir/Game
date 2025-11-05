@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import Cookies from "js-cookie";
-import { hero, controller, YellowStar, backIcon,Loading } from "../assets";
+import { hero, controller, YellowStar, backIcon } from "../assets";
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const STATIC_OTP = "4353";
 const ENCRYPTION_KEY = "gamezone-secret-key-2025";
@@ -37,7 +38,6 @@ export default function Login() {
     const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 11) {
       setMobile(value);
-      setError("");
     }
   };
 
@@ -49,7 +49,6 @@ export default function Login() {
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-    setError("");
 
     if (value && index < 3) {
       otpRefs.current[index + 1].focus();
@@ -98,18 +97,7 @@ export default function Login() {
   };
 
   const handleSendOtp = () => {
-    if (!validateMobileFormat(mobile)) {
-      setError("Please enter a valid mobile number (03XXXXXXXXX)");
-      return;
-    }
-
-    if (!agreedToTerms) {
-      setError("Please agree to terms and conditions");
-      return;
-    }
-
     setLoading(true);
-    setError("");
 
     setTimeout(() => {
       console.log("Sending OTP to:", mobile);
@@ -125,13 +113,8 @@ export default function Login() {
   const handleVerifyOtp = () => {
     const otpValue = otp.join("");
 
-    if (otpValue.length !== 4) {
-      setError("Please enter complete OTP");
-      return;
-    }
 
     setLoading(true);
-    setError("");
 
     setTimeout(() => {
       if (otpValue === STATIC_OTP) {
@@ -234,26 +217,20 @@ export default function Login() {
         {!otpScreen ? (
           <>
             {/* Phone Number Input Screen */}
-            <label className="mt-4 sm:mt-6 text-xs sm:text-sm font-semibold">
+            <label className="mt-4 sm:mt-6 text-sm sm:text-lg font-normal">
               ENTER YOUR NUMBER
             </label>
             <input
               type="tel"
               value={mobile}
               onChange={handleMobileChange}
-              className={`mt-2 w-full max-w-xs bg-white text-black rounded-lg p-2 sm:p-3 outline-none text-center text-base sm:text-lg font-medium ${mobile && !isValidMobile ? "ring-2 ring-red-500" : ""
+              className={`mt-2 w-full max-w-xs bg-white text-black rounded-lg p-2 sm:p-3 outline-none text-center text-base sm:text-lg font-normal ${mobile && !isValidMobile ? "ring-2 ring-red-500" : ""
                 }`}
               placeholder="Enter Your Mobile Number"
             />
 
-            {error && (
-              <p className="text-red-400 text-xs sm:text-sm mt-2 text-center">
-                {error}
-              </p>
-            )}
-
             {mobile && !isValidMobile && (
-              <p className="text-yellow-400 text-xs mt-1">
+              <p className="text-red-400 text-xs mt-1">
                 Please enter a valid mobile number (03XXXXXXXXX)
               </p>
             )}
@@ -268,26 +245,7 @@ export default function Login() {
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  SENDING...
+                   <LoadingSpinner size="sm" color="white" showText={true}  text="SENDING..."/>
                 </span>
               ) : (
                 "SEND OTP"
@@ -336,26 +294,7 @@ export default function Login() {
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  VERIFYING...
+                  <LoadingSpinner size="sm" color="white" showText={true} text="VERIFYING..." />
                 </span>
               ) : (
                 "VERIFY OTP"
@@ -374,7 +313,7 @@ export default function Login() {
             type="checkbox"
             checked={agreedToTerms}
             onChange={(e) => setAgreedToTerms(e.target.checked)}
-            className="accent-blue-500 w-4 h-4 cursor-pointer"
+            className="accent-blue-500 w-4 h-4 cursor-pointer "
           />
           <label
             className="cursor-pointer text-sm sm:text-lg"
