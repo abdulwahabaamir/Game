@@ -1,13 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import CryptoJS from "crypto-js";
-import Cookies from "js-cookie";
 import { hero, controller, YellowStar, backIcon } from "../assets";
 import LoadingSpinner from '../components/LoadingSpinner';
+import { createAuthToken, validateToken } from '../utils/auth';
 
 const STATIC_OTP = "4353";
-const ENCRYPTION_KEY = "gamezone-secret-key-2025";
-const TOKEN_EXPIRY_MINUTES = 10;
 
 export default function Login() {
   const [mobile, setMobile] = useState("");
@@ -20,38 +17,38 @@ export default function Login() {
   const otpRefs = useRef([]);
   const navigate = useNavigate();
 
-  // Check if user is already logged in
+  // Redirect if already logged in
   useEffect(() => {
-    const token = Cookies.get("authToken");
-    if (token) {
-      navigate("/home");
-    }
-  }, [navigate]);
+  const data = validateToken();
+  if (data) {
+    navigate("/home", { replace: true });
+  }
+  // ✅ Do NOT put validateToken in dependency array
+}, [navigate]);
 
-  // Validate Pakistani mobile number format
-  const validateMobileFormat = (number) => {
-    const mobileRegex = /^03[0-9]{9}$/;
-    return mobileRegex.test(number);
-  };
+
+  // Validate Pakistani mobile number format (03XXXXXXXXX)
+  const isValidMobile = /^03[0-9]{9}$/.test(mobile);
 
   const handleMobileChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 11) {
       setMobile(value);
+      setError(""); // Clear error on input change
     }
   };
 
   const handleOtpChange = (e, index) => {
     const value = e.target.value;
-
     if (!/^[0-9]?$/.test(value)) return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
+    // Auto-focus next input
     if (value && index < 3) {
-      otpRefs.current[index + 1].focus();
+      otpRefs.current[index + 1]?.focus();
     }
   };
 
@@ -61,85 +58,50 @@ export default function Login() {
     }
   };
 
-  // Generate encrypted token
-  const generateEncryptedToken = (mobileNumber) => {
-    const tokenData = {
-      mobile: mobileNumber,
-      loginTime: new Date().toISOString(),
-      expiresAt: new Date(
-        Date.now() + TOKEN_EXPIRY_MINUTES * 60 * 1000
-      ).toISOString(),
-    };
-
-    const tokenString = JSON.stringify(tokenData);
-    const encryptedToken = CryptoJS.AES.encrypt(
-      tokenString,
-      ENCRYPTION_KEY
-    ).toString();
-
-    return encryptedToken;
-  };
-
-  // Store token in cookie with proper security options
-  const storeAuthToken = (token) => {
-    const cookieOptions = {
-      secure: true, // ✅ HTTPS only
-      sameSite: "strict", // ✅ CSRF protection
-      expires: new Date(Date.now() + 10 * 60 * 1000), // ✅ 10 minutes from now
-      path: "/",
-    };
-
-    // Store encrypted token
-    Cookies.set("authToken", token, cookieOptions);
-
-    // Store login timestamp for auto-logout check
-    Cookies.set("loginTime", Date.now().toString(), cookieOptions);
-  };
-
   const handleSendOtp = () => {
-    setLoading(true);
+    if (!isValidMobile || !agreedToTerms) return;
 
+    setLoading(true);
+    setError("");
+
+    // Simulate OTP sending delay
     setTimeout(() => {
-      console.log("Sending OTP to:", mobile);
-      console.log("Static OTP:", STATIC_OTP);
+      console.log("📱 Sending OTP to:", mobile);
+      console.log("🔑 Static OTP:", STATIC_OTP);
       setOtpScreen(true);
       setLoading(false);
-
       setOtp(["", "", "", ""]);
+      
+      // Auto-focus first OTP input
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
     }, 1000);
   };
 
   const handleVerifyOtp = () => {
     const otpValue = otp.join("");
-
+    
+    if (!otpValue || otpValue.length !== 4) {
+      setError("Please enter complete OTP");
+      return;
+    }
 
     setLoading(true);
+    setError("");
 
+    // Simulate verification delay
     setTimeout(() => {
       if (otpValue === STATIC_OTP) {
-        // Generate encrypted token
-        const encryptedToken = generateEncryptedToken(mobile);
-
-        console.log("===== SECURITY VERIFICATION =====");
-        console.log("✅ Token encrypted with CryptoJS AES");
-        console.log("✅ No plain-text data stored");
-        console.log(
-          "✅ Cookie options: secure=true, sameSite=strict, maxAge=600000ms"
-        );
-        console.log(
-          "Encrypted Token Sample:",
-          encryptedToken.substring(0, 50) + "..."
-        );
-        console.log("================================");
-
-        // Store in cookie with proper security options
-        storeAuthToken(encryptedToken);
-
-        console.log("Login successful!");
-        console.log("Session will expire in 10 minutes");
-
-        navigate("/home");
+        // Create and store encrypted auth token
+        const success = createAuthToken(mobile);
+        
+        if (success) {
+          console.log("✅ Login successful!");
+          console.log("⏱️ Session will expire in 10 minutes");
+          navigate("/home");
+        } else {
+          setError("Failed to create session. Please try again.");
+          setLoading(false);
+        }
       } else {
         setError("Invalid OTP. Please try again.");
         setOtp(["", "", "", ""]);
@@ -154,37 +116,38 @@ export default function Login() {
       setOtpScreen(false);
       setOtp(["", "", "", ""]);
       setError("");
+    } else {
+      navigate('/');
     }
-    navigate('/');
   };
 
-  const isValidMobile = validateMobileFormat(mobile);
   const isOtpComplete = otp.every((digit) => digit !== "");
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-b from-black to-gray-900 text-white">
       {/* Header Section with curved bottom */}
       <div
-        className="bg-gradient-to-r from-[#00395C] to-[#0078C2] w-full px-4  mb-8 relative"
+        className="bg-gradient-to-r from-[#00395C] to-[#0078C2] w-full px-4 mb-8 relative"
         style={{ clipPath: "polygon(0 0, 100% 0, 100% 90%, 50% 100%, 0 90%)" }}
       >
         {/* Back Button */}
         <div className="mt-4 sm:mt-6 w-full flex justify-start px-2">
           <button
             onClick={handleBack}
-            className="bg-[#2EB1FA] w-7 h-7 sm:w-8 sm:h-8 rounded-full flex justify-center items-center cursor-pointer hover:bg-[#1a9ee0] border-2 border-white"
+            className="bg-[#2EB1FA] w-7 h-7 sm:w-8 sm:h-8 rounded-full flex justify-center items-center cursor-pointer hover:bg-[#1a9ee0] border-2 border-white transition-colors"
+            aria-label="Go back"
           >
-            <img src={backIcon} alt="back" className="w-2 h-4" />
+            <img src={backIcon} alt="" className="w-2 h-4" />
           </button>
         </div>
 
         {/* Character and Stars */}
         <div className="mt-4 sm:mt-0 flex items-center justify-around px-2 pb-8 sm:pb-0">
-          <div className="flex flex-col items-center ">
+          <div className="flex flex-col items-center">
             <div className="flex justify-center items-start gap-1 sm:gap-2">
-              <img src={YellowStar} alt="star" className="w-8 h-8 sm:w-14 sm:h-14" />
-              <img src={YellowStar} alt="star" className="-mt-6 w-8 h-8 sm:w-14 sm:h-14" />
-              <img src={YellowStar} alt="star" className="w-8 h-8 sm:w-14 sm:h-14" />
+              <img src={YellowStar} alt="" className="w-8 h-8 sm:w-14 sm:h-14" />
+              <img src={YellowStar} alt="" className="-mt-6 w-8 h-8 sm:w-14 sm:h-14" />
+              <img src={YellowStar} alt="" className="w-8 h-8 sm:w-14 sm:h-14" />
             </div>
             <p className="text-xs sm:text-lg font-bold">TOP RATED</p>
           </div>
@@ -192,7 +155,7 @@ export default function Login() {
           <div>
             <img
               src={hero}
-              alt="hero character"
+              alt="Hero character"
               className="w-24 h-44 sm:w-32 sm:h-56 md:w-36 md:h-70 object-contain"
             />
           </div>
@@ -203,7 +166,7 @@ export default function Login() {
       <div className="mb-2">
         <img
           src={controller}
-          alt="controller"
+          alt="Game controller"
           className="w-10 h-7 sm:w-12 sm:h-9"
         />
       </div>
@@ -224,9 +187,11 @@ export default function Login() {
               type="tel"
               value={mobile}
               onChange={handleMobileChange}
-              className={`mt-2 w-full max-w-xs bg-white text-black rounded-lg p-2 sm:p-3 outline-none text-center text-base sm:text-lg font-normal ${mobile && !isValidMobile ? "ring-2 ring-red-500" : ""
-                }`}
-              placeholder="Enter Your Mobile Number"
+              className={`mt-2 w-full max-w-xs bg-white text-black rounded-lg p-2 sm:p-3 outline-none text-center text-base sm:text-lg font-normal transition-all ${
+                mobile && !isValidMobile ? "ring-2 ring-red-500" : ""
+              }`}
+              placeholder="03XXXXXXXXX"
+              disabled={loading}
             />
 
             {mobile && !isValidMobile && (
@@ -238,15 +203,14 @@ export default function Login() {
             <button
               onClick={handleSendOtp}
               disabled={!isValidMobile || !agreedToTerms || loading}
-              className={`mt-6 w-full max-w-xs py-2 sm:py-3 rounded-lg font-bold border-2 border-white text-sm sm:text-base transition-all ${isValidMobile && agreedToTerms && !loading
+              className={`mt-6 w-full max-w-xs py-2 sm:py-3 rounded-lg font-bold border-2 border-white text-sm sm:text-base transition-all ${
+                isValidMobile && agreedToTerms && !loading
                   ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
                   : "bg-gray-600 cursor-not-allowed opacity-50"
-                }`}
+              }`}
             >
               {loading ? (
-                <span className="flex items-center justify-center">
-                   <LoadingSpinner size="sm" color="white" showText={true}  text="SENDING..."/>
-                </span>
+                <LoadingSpinner size="sm" color="white" showText={true} text="SENDING..." />
               ) : (
                 "SEND OTP"
               )}
@@ -255,15 +219,15 @@ export default function Login() {
         ) : (
           <>
             {/* OTP Input Screen */}
-            <label className="mt-4 sm:mt-6 text-xs sm:text-sm font-semibold">
+            <label className="mt-4 sm:mt-6 text-md sm:text-xl font-semibold">
               ENTER OTP
             </label>
             <p className="text-xs sm:text-sm text-gray-300 mt-1">
-              Sent to {mobile}
+              An OTP has been sent to {mobile}
             </p>
 
             <div className="flex gap-2 sm:gap-3 mt-4">
-              {[...Array(4)].map((_, i) => (
+              {[0, 1, 2, 3].map((i) => (
                 <input
                   key={i}
                   type="text"
@@ -273,7 +237,9 @@ export default function Login() {
                   ref={(el) => (otpRefs.current[i] = el)}
                   onChange={(e) => handleOtpChange(e, i)}
                   onKeyDown={(e) => handleKeyDown(e, i)}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-white text-black text-center text-xl sm:text-2xl font-semibold shadow-md border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  disabled={loading}
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-white text-black text-center text-xl sm:text-2xl font-semibold shadow-md border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                  aria-label={`OTP digit ${i + 1}`}
                 />
               ))}
             </div>
@@ -287,15 +253,14 @@ export default function Login() {
             <button
               onClick={handleVerifyOtp}
               disabled={!isOtpComplete || loading}
-              className={`mt-6 w-full max-w-xs py-2 sm:py-3 rounded-lg font-bold border-2 border-white text-sm sm:text-base transition-all ${isOtpComplete && !loading
+              className={`mt-6 px-16 sm:px-20 py-2 sm:py-3 rounded-lg font-bold border-2 border-white text-sm sm:text-base transition-all ${
+                isOtpComplete && !loading
                   ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
                   : "bg-gray-600 cursor-not-allowed opacity-50"
-                }`}
+              }`}
             >
               {loading ? (
-                <span className="flex items-center justify-center">
-                  <LoadingSpinner size="sm" color="white" showText={true} text="VERIFYING..." />
-                </span>
+                <LoadingSpinner size="sm" color="white" showText={true} text="VERIFYING..." />
               ) : (
                 "VERIFY OTP"
               )}
@@ -304,20 +269,22 @@ export default function Login() {
         )}
 
         {/* Terms & Privacy */}
-        <p className="mt-6 sm:mt-8 text-sm sm:text-lg text-center font-semibold ">
+        <p className="mt-6 sm:mt-8 text-sm sm:text-lg text-center font-semibold">
           YOUR CONTACT DETAILS ARE USED FOR VERIFICATION AND UPDATES AS PER OUR [PRIVACY POLICY].
         </p>
 
-        <div className="mt-4 flex items-center gap-2 text-[10px] sm:text-[11px]">
+        <div className="mt-4 flex items-center gap-2">
           <input
             type="checkbox"
+            id="terms-checkbox"
             checked={agreedToTerms}
             onChange={(e) => setAgreedToTerms(e.target.checked)}
-            className="accent-blue-500 w-4 h-4 cursor-pointer "
+            disabled={loading}
+            className="accent-blue-500 w-4 h-4 cursor-pointer"
           />
           <label
+            htmlFor="terms-checkbox"
             className="cursor-pointer text-sm sm:text-lg"
-            onClick={() => setAgreedToTerms(!agreedToTerms)}
           >
             I AGREE TO THE TERMS AND CONDITIONS
           </label>
@@ -325,7 +292,7 @@ export default function Login() {
 
         <a
           href="#"
-          className="mt-4 mb-8 text-blue-400 text-sm sm:text-lg font-bold hover:text-blue-300"
+          className="mt-4 mb-8 text-blue-400 text-sm sm:text-lg font-bold hover:text-blue-300 transition-colors"
         >
           PRIVACY POLICY
         </a>

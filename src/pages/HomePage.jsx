@@ -1,37 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import Cookies from "js-cookie";
+import React, { useState } from "react";
 import { controller } from "../assets";
-import { Equal } from 'lucide-react';
+import { Equal } from "lucide-react";
 
-
-import GameContent from '../components/GameContent';
-import BottomNavigation from '../components/BottomNavigation';
+import GameContent from "../components/GameContent";
+import BottomNavigation from "../components/BottomNavigation";
+import { logout } from "../utils/auth"; 
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
-  const [activeTab, setActiveTab] = useState('home');
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const logout = () => {
-    Cookies.remove("authToken");
-    Cookies.remove("loginTime");
 
-    // 🔹 If using Redux / Context → Clear authentication state
-    // dispatch(logoutUser())
-
-    window.location.href = "/login"; // redirect to login page
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
   };
 
-  // ✅ Auto Logout if loginTime expired
-  useEffect(() => {
-    const loginTime = Cookies.get("loginTime");
-    const expirationTime = 24 * 60 * 60 * 1000; // 1 day expiration
-    if (loginTime) {
-      const diff = Date.now() - Number(loginTime);
-      if (diff > expirationTime) {
-        logout();
-      }
-    }
-  }, []);
+ 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 relative overflow-hidden pb-24">
@@ -41,21 +28,24 @@ const HomePage = () => {
 
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <img src={controller} alt="" className='w-[35px] h-[25px]' />
-          <span className="text-white text-2xl font-bold tracking-wider">GAMEZONE</span>
+          <img src={controller} alt="Logo" className="w-[35px] h-[25px]" />
+          <span className="text-white text-2xl font-bold tracking-wider">
+            GAMEZONE
+          </span>
         </div>
 
-        {/* ✅ Desktop — Profile + Logout */}
+        {/* ✅ Desktop Profile + Logout */}
         <div className="hidden md:flex items-center gap-4 text-white">
           <button className="bg-gray-700 px-3 py-1 rounded-lg">Profile</button>
           <button
-            onClick={logout}
-            className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg cursor-pointer">
+            onClick={handleLogout}
+            className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg transition-all"
+          >
             Logout
           </button>
         </div>
 
-        {/* ✅ Mobile — Menu Button */}
+        {/* ✅ Mobile Menu Button */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden bg-blue-600 hover:bg-blue-700 p-2 rounded-lg transition-all border-2 border-white"
@@ -63,18 +53,20 @@ const HomePage = () => {
           <Equal className="text-white" />
         </button>
 
+        {/* ✅ Mobile Dropdown */}
         {menuOpen && (
-          <div className="absolute z-50 top-18 right-6 text-lg bg-slate-800 text-white px-6 py-3 rounded-lg shadow-xl md:hidden border border-gray-700">
-            <button className="block w-full text-left py-2 cursor-pointer hover:text-blue-400">Profile</button>
+          <div className="absolute top-16 right-6 text-lg bg-slate-800 text-white px-6 py-3 rounded-lg shadow-xl border border-gray-700 md:hidden animate-fadeIn">
+            <button className="block w-full text-left py-2 hover:text-blue-400">
+              Profile
+            </button>
             <button
-              onClick={logout}
-              className="block w-full text-left py-2 cursor-pointer hover:text-blue-400">
+              onClick={handleLogout}
+              className="block w-full text-left py-2 hover:text-blue-400"
+            >
               Logout
             </button>
           </div>
         )}
-
-
       </div>
 
       <GameContent />
