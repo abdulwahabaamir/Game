@@ -2,8 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import GameContent from '../components/GameContent';
 import { controller } from "../assets";
-import { useEffect } from 'react';
-import Cookies from "js-cookie";
 
 
 const LandingPage = () => {
@@ -12,12 +10,7 @@ const LandingPage = () => {
   const handleJoinClick = () => {
     navigate('/login');
   };
-  useEffect(() => {
-      const token = Cookies.get("authToken");
-      if (token) {
-        navigate("/home");
-      }
-    }, [navigate]);
+
 
   return (
     <div className="min-h-screen bg-[#1E1E1E] relative overflow-hidden">

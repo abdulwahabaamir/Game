@@ -4,8 +4,11 @@ import { createAuthToken, validateToken, logout as clearAuth } from "../utils/au
 import { games } from "../data/gamesData";
 import { navItems } from "../data/navData";
 import { slides } from "../data/slidesData";
+import { useNavigate } from "react-router-dom";
 
 const AppProvider = ({ children }) => {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -13,6 +16,7 @@ const AppProvider = ({ children }) => {
     if (createAuthToken(mobile)) {
       setUser({ mobile });
       setIsLoggedIn(true);
+      navigate("/home", { replace: true });
     }
   };
 

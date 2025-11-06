@@ -1,4 +1,3 @@
-// data/gamesData.js
 import { game1, game2, game3, game4 } from "../assets";
 
 export const games = [

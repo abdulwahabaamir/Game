@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { hero, controller, YellowStar, backIcon } from "../assets";
 import LoadingSpinner from '../components/LoadingSpinner';
-import { createAuthToken, validateToken } from '../utils/auth';
+import { useAppContext } from '../context/useAppContext';
 
 const STATIC_OTP = "4353";
 
@@ -13,28 +13,18 @@ export default function Login() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+   const { login } = useAppContext();
 
   const otpRefs = useRef([]);
   const navigate = useNavigate();
 
-  // Redirect if already logged in
-  useEffect(() => {
-  const data = validateToken();
-  if (data) {
-    navigate("/home", { replace: true });
-  }
-  // ✅ Do NOT put validateToken in dependency array
-}, [navigate]);
-
-
-  // Validate Pakistani mobile number format (03XXXXXXXXX)
   const isValidMobile = /^03[0-9]{9}$/.test(mobile);
 
   const handleMobileChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 11) {
       setMobile(value);
-      setError(""); // Clear error on input change
+      setError("");
     }
   };
 
@@ -46,7 +36,6 @@ export default function Login() {
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto-focus next input
     if (value && index < 3) {
       otpRefs.current[index + 1]?.focus();
     }
@@ -64,15 +53,11 @@ export default function Login() {
     setLoading(true);
     setError("");
 
-    // Simulate OTP sending delay
+  
     setTimeout(() => {
-      console.log("📱 Sending OTP to:", mobile);
-      console.log("🔑 Static OTP:", STATIC_OTP);
       setOtpScreen(true);
       setLoading(false);
       setOtp(["", "", "", ""]);
-      
-      // Auto-focus first OTP input
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
     }, 1000);
   };
@@ -88,20 +73,10 @@ export default function Login() {
     setLoading(true);
     setError("");
 
-    // Simulate verification delay
     setTimeout(() => {
       if (otpValue === STATIC_OTP) {
-        // Create and store encrypted auth token
-        const success = createAuthToken(mobile);
-        
-        if (success) {
-          console.log("✅ Login successful!");
-          console.log("⏱️ Session will expire in 10 minutes");
-          navigate("/home");
-        } else {
-          setError("Failed to create session. Please try again.");
-          setLoading(false);
-        }
+        login(mobile);
+        navigate("/home", { replace: true });
       } else {
         setError("Invalid OTP. Please try again.");
         setOtp(["", "", "", ""]);

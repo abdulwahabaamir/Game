@@ -1,4 +1,4 @@
-// components/LoadingSpinner.jsx
+
 import React from 'react';
 
 const LoadingSpinner = ({ 
@@ -8,7 +8,6 @@ const LoadingSpinner = ({
   showText = false,
   text = 'Loading...'
 }) => {
-  // Size mapping
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-5 w-5',
@@ -16,7 +15,6 @@ const LoadingSpinner = ({
     xl: 'h-12 w-12'
   };
 
-  // Text size mapping
   const textSizeClasses = {
     sm: 'text-sm',
     md: 'text-base',
